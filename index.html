@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dispatch — Press Monitoring Wire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #10151c;
+    --paper: #f4efe3;
+    --paper-dim: #e9e2d1;
+    --stamp: #c1392b;
+    --stamp-dim: #8f2a1f;
+    --steel: #3a5570;
+    --steel-light: #6b87a3;
+    --text-on-paper: #2a2f36;
+    --text-on-ink: #ece6d6;
+    --muted-on-ink: #8b93a0;
+    --muted-on-paper: #6a6357;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text-on-ink);
+    font-family: 'Inter', sans-serif;
+  }
+  body { padding: 0 0 60px; }
+
+  .masthead {
+    border-bottom: 3px solid var(--stamp);
+    padding: 28px 24px 18px;
+    max-width: 1040px;
+    margin: 0 auto;
+  }
+  .wire-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-on-ink);
+    margin-bottom: 14px;
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #4a9d6f;
+    flex-shrink: 0;
+  }
+  h1 {
+    font-family: 'Anton', sans-serif;
+    font-weight: 400;
+    font-size: 42px;
+    letter-spacing: 0.01em;
+    margin: 0 0 6px;
+    color: var(--paper);
+    line-height: 0.95;
+  }
+  h1 span { color: var(--stamp); }
+  .tagline {
+    color: var(--muted-on-ink);
+    font-size: 14px;
+    margin: 0;
+    max-width: 520px;
+  }
+
+  .desk {
+    max-width: 1040px;
+    margin: 28px auto 0;
+    padding: 0 24px;
+  }
+
+  .card {
+    background: var(--paper);
+    color: var(--text-on-paper);
+    border-radius: 3px;
+    padding: 26px;
+    box-shadow: 0 12px 30px -12px rgba(0,0,0,0.5);
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 14px; bottom: 14px;
+    width: 4px;
+    background: var(--stamp);
+  }
+  .card-inner { padding-left: 16px; }
+  .card h2 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-on-paper);
+    margin: 0 0 16px;
+  }
+
+  /* Keyword quick-search buttons */
+  .keyword-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .kw-btn {
+    padding: 14px 12px;
+    border: 1.5px solid var(--paper-dim);
+    background: #fffdf8;
+    border-radius: 3px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-on-paper);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+  .kw-btn:hover { border-color: var(--stamp); background: #fff; }
+  .kw-btn::after {
+    content: '→';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted-on-paper);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Custom search row */
+  #wireSearchForm {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  #wireQuery {
+    flex: 1;
+    min-width: 220px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--paper-dim);
+    background: #fffdf8;
+    border-radius: 2px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-on-paper);
+  }
+  #wireQuery:focus { outline: none; border-color: var(--steel); }
+
+  button.run {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 2px;
+    background: var(--stamp);
+    color: var(--paper);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button.run:hover { background: var(--stamp-dim); }
+
+  .hint-row {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--paper-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted-on-paper);
+  }
+  .hint-row a { color: var(--steel); }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wire-strip">
+    <span class="dot"></span>
+    <span>WIRE CONNECTED</span>
+  </div>
+  <h1>DISPATCH<span>.</span></h1>
+  <p class="tagline">One click per brand — opens results on your search engine, sorted by date.</p>
+</div>
+
+<div class="desk">
+
+  <div class="card">
+    <div class="card-inner">
+      <h2>Quick Search — Your 10 Keywords</h2>
+      <!--
+        EDIT THIS LIST: replace "Keyword 1".."Keyword 10" below with your
+        actual brand/keyword names. Each button fires a search automatically
+        on click -- no typing needed.
+      -->
+      <div class="keyword-grid" id="keywordGrid"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-inner">
+      <h2>Custom Search</h2>
+      <form id="wireSearchForm" onsubmit="return goSearch(event)">
+        <input type="text" id="wireQuery" placeholder="Type any other keyword..." autocomplete="off" />
+        <button class="run" type="submit">Run Search</button>
+      </form>
+      <div class="hint-row">
+        // opens results on Google's search page in a new tab, sorted by date &nbsp;·&nbsp;
+        <a href="https://cse.google.com/cse?cx=c6bd65f07f8914ff0" target="_blank" rel="noopener">Open engine settings ↗</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ---- EDIT THIS ARRAY with your real 10 keywords ----
+  var KEYWORDS = [
+    "Keyword 1", "Keyword 2", "Keyword 3", "Keyword 4", "Keyword 5",
+    "Keyword 6", "Keyword 7", "Keyword 8", "Keyword 9", "Keyword 10"
+  ];
+  // -----------------------------------------------------
+
+  var CX = "c6bd65f07f8914ff0";
+
+  function search(query) {
+    var url = "https://cse.google.com/cse?cx=" + CX +
+      "#gsc.tab=0&gsc.q=" + encodeURIComponent(query) + "&gsc.sort=date";
+    window.open(url, "_blank");
+  }
+
+  function goSearch(e) {
+    e.preventDefault();
+    var q = document.getElementById("wireQuery").value.trim();
+    if (!q) return false;
+    search(q);
+    return false;
+  }
+
+  var grid = document.getElementById("keywordGrid");
+  KEYWORDS.forEach(function(kw) {
+    var btn = document.createElement("button");
+    btn.className = "kw-btn";
+    btn.textContent = kw;
+    btn.addEventListener("click", function() { search(kw); });
+    grid.appendChild(btn);
+  });
+</script>
+</body>
+</html>
