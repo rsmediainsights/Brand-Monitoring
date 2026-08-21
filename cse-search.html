@@ -191,28 +191,20 @@
 <div class="desk">
 
   <div style="margin-bottom:16px;">
-    <a href="cse-search.html" style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--terracotta); text-decoration:none;">Country search engines (per-country PSE) &rarr;</a>
+    <a href="index.html" style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--terracotta); text-decoration:none;">&larr; Back to main Dispatch (relevance + recency search)</a>
   </div>
 
   <div class="card">
     <div class="card-inner">
-      <h2>Country</h2>
-      <label class="field-label" for="countrySelect">Select country site list</label>
+      <h2>Country Engine</h2>
+      <label class="field-label" for="countrySelect">Select search engine</label>
       <select class="country-select" id="countrySelect">
-        <option value="India">India — Elite</option>
-        <option value="US">US — Elite</option>
-        <option value="UK">UK — Elite</option>
-        <option value="France">France — Elite</option>
-        <option value="Germany">Germany — Elite</option>
-        <option value="ANZ">ANZ — Elite + Tier 1</option>
-      </select>
-
-      <label class="field-label" for="dateRange" style="margin-top:14px;">Recency window</label>
-      <select class="country-select" id="dateRange">
-        <option value="">Any time (pure relevance)</option>
-        <option value="qdr:w">Past week</option>
-        <option value="qdr:m" selected>Past month</option>
-        <option value="qdr:y">Past year</option>
+        <option value="f5b25eb92cbde465a">India — Elite</option>
+        <option value="b2d9c43a993cc4a21">US — Elite</option>
+        <option value="a3242dbf20b024430">UK — Elite</option>
+        <option value="94f45e643de6f45f1">France — Elite</option>
+        <option value="b56c4d44f92434b1f">Germany — Elite</option>
+        <option value="f3e0d1ae4a8f54309">ANZ — Elite + Tier 1</option>
       </select>
     </div>
   </div>
@@ -232,7 +224,8 @@
         <button class="run" type="submit">Run Search</button>
       </form>
       <div class="hint-row">
-        // relevance-ranked results within your chosen recency window, opens in a new tab
+        // opens results on your Programmable Search Engine, in a new tab &nbsp;&middot;&nbsp;
+        <a href="#" id="settingsLink" target="_blank" rel="noopener">Open engine settings &#8599;</a>
       </div>
     </div>
   </div>
@@ -242,27 +235,14 @@
 <script>
   var KEYWORDS = ["Accenture", "Capgemini", "Cognizant", "Infosys", "TCS", "Deloitte", "HCL", "IBM", "Wipro"];
 
-  var COUNTRY_DOMAINS = {
-    "India": ["cnbctv18.com", "timesofindia.indiatimes.com", "economictimes.indiatimes.com", "ptinews.com", "livemint.com"],
-    "US": ["bloomberg.com", "businessinsider.com", "cnbc.com", "forbes.com", "fortune.com", "reuters.com", "nytimes.com", "wsj.com", "washingtonpost.com"],
-    "UK": ["bbc.co.uk", "bloomberg.com", "cityam.com", "cnbc.com", "ft.com", "news.sky.com", "economist.com", "theguardian.com", "telegraph.co.uk", "thetimes.co.uk"],
-    "France": ["latribune.fr", "lesechos.fr", "afp.com", "reuters.com", "francetvinfo.fr", "bfmtv.com", "forbes.fr", "lemonde.fr", "leparisien.fr", "lefigaro.fr"],
-    "Germany": ["faz.net", "handelsblatt.com", "welt.de", "sueddeutsche.de", "wiwo.de"],
-    "ANZ": ["afr.com", "themandarin.com.au", "governmentnews.com.au", "cio.com", "govtechreview.com.au", "ia.acs.org.au", "crn.com.au", "itnews.com.au", "itbrief.com.au", "itwire.com", "istart.com.au", "technologydecisions.com.au", "reuters.com", "consultancy.com.au", "techbusinessnews.com.au", "zdnet.com", "retailbiz.com.au", "nbr.co.nz", "campaignbrief.com", "bandt.com.au", "momentummedia.com.au", "scoop.co.nz", "aicd.com.au", "innovationaus.com", "financialstandard.com.au", "digitalnationaus.com.au", "skynews.com.au", "mi-3.com.au", "heraldsun.com.au", "bankingday.com", "nzmarketingmag.co.nz", "mumbrella.com.au", "ausbiz.com.au"]
-  };
+  function currentCx() {
+    return document.getElementById("countrySelect").value;
+  }
 
   function search(query) {
-    var country = document.getElementById("countrySelect").value;
-    var recency = document.getElementById("dateRange").value;
-    var domains = COUNTRY_DOMAINS[country] || [];
-
-    var siteFilter = domains.map(function(d) { return "site:" + d; }).join(" OR ");
-    var fullQuery = "(" + siteFilter + ") " + query;
-
-    var params = new URLSearchParams({ q: fullQuery });
-    if (recency) params.set("tbs", recency);
-
-    var url = "https://www.google.com/search?" + params.toString();
+    var cx = currentCx();
+    var url = "https://cse.google.com/cse?cx=" + cx +
+      "#gsc.tab=0&gsc.q=" + encodeURIComponent(query);
     window.open(url, "_blank");
   }
 
@@ -282,6 +262,13 @@
     btn.addEventListener("click", function() { search(kw); });
     grid.appendChild(btn);
   });
+
+  function updateSettingsLink() {
+    var cx = currentCx();
+    document.getElementById("settingsLink").href = "https://cse.google.com/cse?cx=" + cx;
+  }
+  document.getElementById("countrySelect").addEventListener("change", updateSettingsLink);
+  updateSettingsLink();
 </script>
 </body>
 </html>
