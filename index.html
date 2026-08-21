@@ -214,6 +214,20 @@
         <option value="qdr:m" selected>Past month</option>
         <option value="qdr:y">Past year</option>
       </select>
+
+      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:140px;">
+          <label class="field-label" for="dateFrom">Or custom: From</label>
+          <input type="date" id="dateFrom" class="country-select" style="width:100%;" />
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <label class="field-label" for="dateTo">To</label>
+          <input type="date" id="dateTo" class="country-select" style="width:100%;" />
+        </div>
+      </div>
+      <div class="hint-row" style="margin-top:10px; border-top:none; padding-top:0;">
+        // if both From and To are set, they override the preset window above
+      </div>
     </div>
   </div>
 
@@ -251,16 +265,31 @@
     "ANZ": ["afr.com", "themandarin.com.au", "governmentnews.com.au", "cio.com", "govtechreview.com.au", "ia.acs.org.au", "crn.com.au", "itnews.com.au", "itbrief.com.au", "itwire.com", "istart.com.au", "technologydecisions.com.au", "reuters.com", "consultancy.com.au", "techbusinessnews.com.au", "zdnet.com", "retailbiz.com.au", "nbr.co.nz", "campaignbrief.com", "bandt.com.au", "momentummedia.com.au", "scoop.co.nz", "aicd.com.au", "innovationaus.com", "financialstandard.com.au", "digitalnationaus.com.au", "skynews.com.au", "mi-3.com.au", "heraldsun.com.au", "bankingday.com", "nzmarketingmag.co.nz", "mumbrella.com.au", "ausbiz.com.au"]
   };
 
+  function formatForGoogle(isoDate) {
+    // Converts YYYY-MM-DD (from <input type="date">) to MM/DD/YYYY (Google's expected format)
+    var parts = isoDate.split("-");
+    return parts[1] + "/" + parts[2] + "/" + parts[0];
+  }
+
   function search(query) {
     var country = document.getElementById("countrySelect").value;
     var recency = document.getElementById("dateRange").value;
+    var dateFrom = document.getElementById("dateFrom").value;
+    var dateTo = document.getElementById("dateTo").value;
     var domains = COUNTRY_DOMAINS[country] || [];
 
     var siteFilter = domains.map(function(d) { return "site:" + d; }).join(" OR ");
     var fullQuery = "(" + siteFilter + ") " + query;
 
     var params = new URLSearchParams({ q: fullQuery });
-    if (recency) params.set("tbs", recency);
+
+    if (dateFrom && dateTo) {
+      // Custom date range takes priority over the preset dropdown
+      var tbsValue = "cdr:1,cd_min:" + formatForGoogle(dateFrom) + ",cd_max:" + formatForGoogle(dateTo);
+      params.set("tbs", tbsValue);
+    } else if (recency) {
+      params.set("tbs", recency);
+    }
 
     var url = "https://www.google.com/search?" + params.toString();
     window.open(url, "_blank");
