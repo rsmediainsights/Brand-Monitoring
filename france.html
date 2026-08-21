@@ -189,64 +189,120 @@
 </div>
 
 <div class="desk">
-  <p style="font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); margin-bottom:20px;">
-    // select your country to search its publications by category, keyword, and date range
-  </p>
 
-  <a href="india.html" style="text-decoration:none;">
-    <div class="card" style="cursor:pointer; transition: transform 0.1s;">
-      <div class="card-inner">
-        <h2 style="margin-bottom:6px;">India</h2>
-        <div style="font-family:'Inter',sans-serif; font-size:14px; color:var(--muted); ">5 / 25 / 25 sites — Elite / Tier 1 / Trade</div>
+  <div style="margin-bottom:16px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+    <a href="index.html" style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--terracotta); text-decoration:none;">&larr; All countries</a>
+  </div>
+
+  <div class="card">
+    <div class="card-inner">
+      <h2>France — Category</h2>
+      <label class="field-label" for="categorySelect">Select category / tier</label>
+      <select class="country-select" id="categorySelect">
+        <option value="ELITE">ELITE (10 sites)</option>
+        <option value="Tier 1">Tier 1 (23 sites)</option>
+        <option value="Trade">Trade (25 sites)</option>
+      </select>
+
+      <label class="field-label" for="dateRange" style="margin-top:14px;">Recency window</label>
+      <select class="country-select" id="dateRange">
+        <option value="">Any time (pure relevance)</option>
+        <option value="qdr:w">Past week</option>
+        <option value="qdr:m" selected>Past month</option>
+        <option value="qdr:y">Past year</option>
+      </select>
+
+      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:140px;">
+          <label class="field-label" for="dateFrom">Or custom: From</label>
+          <input type="date" id="dateFrom" class="country-select" style="width:100%;" />
+        </div>
+        <div style="flex:1; min-width:140px;">
+          <label class="field-label" for="dateTo">To</label>
+          <input type="date" id="dateTo" class="country-select" style="width:100%;" />
+        </div>
+      </div>
+      <div class="hint-row" style="margin-top:10px; border-top:none; padding-top:0;">
+        // if both From and To are set, they override the preset window above
       </div>
     </div>
-  </a>
+  </div>
 
-  <a href="us.html" style="text-decoration:none;">
-    <div class="card" style="cursor:pointer; transition: transform 0.1s;">
-      <div class="card-inner">
-        <h2 style="margin-bottom:6px;">US</h2>
-        <div style="font-family:'Inter',sans-serif; font-size:14px; color:var(--muted); ">9 / 25 sites + 8 industry categories</div>
+  <div class="card">
+    <div class="card-inner">
+      <h2>Quick Search — Keywords</h2>
+      <div class="keyword-grid" id="keywordGrid"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-inner">
+      <h2>Custom Search</h2>
+      <form id="wireSearchForm" onsubmit="return goSearch(event)">
+        <input type="text" id="wireQuery" placeholder="Type any other keyword..." autocomplete="off" />
+        <button class="run" type="submit">Run Search</button>
+      </form>
+      <div class="hint-row">
+        // relevance-ranked results within your chosen category + recency window, opens in a new tab
       </div>
     </div>
-  </a>
+  </div>
 
-  <a href="uk.html" style="text-decoration:none;">
-    <div class="card" style="cursor:pointer; transition: transform 0.1s;">
-      <div class="card-inner">
-        <h2 style="margin-bottom:6px;">UK</h2>
-        <div style="font-family:'Inter',sans-serif; font-size:14px; color:var(--muted); ">10 / 25 / 25 sites — Elite / Tier 1 / Trade</div>
-      </div>
-    </div>
-  </a>
-
-  <a href="france.html" style="text-decoration:none;">
-    <div class="card" style="cursor:pointer; transition: transform 0.1s;">
-      <div class="card-inner">
-        <h2 style="margin-bottom:6px;">France</h2>
-        <div style="font-family:'Inter',sans-serif; font-size:14px; color:var(--muted); ">10 / 23 / 25 sites — Elite / Tier 1 / Trade</div>
-      </div>
-    </div>
-  </a>
-
-  <a href="germany.html" style="text-decoration:none;">
-    <div class="card" style="cursor:pointer; transition: transform 0.1s;">
-      <div class="card-inner">
-        <h2 style="margin-bottom:6px;">Germany</h2>
-        <div style="font-family:'Inter',sans-serif; font-size:14px; color:var(--muted); ">5 / 18 / 25 sites — Elite / Tier 1 / Trade</div>
-      </div>
-    </div>
-  </a>
-
-  <a href="anz.html" style="text-decoration:none;">
-    <div class="card" style="cursor:pointer; transition: transform 0.1s;">
-      <div class="card-inner">
-        <h2 style="margin-bottom:6px;">ANZ</h2>
-        <div style="font-family:'Inter',sans-serif; font-size:14px; color:var(--muted); ">1 / 25 / 25 sites — Elite / Tier 1 / Trade</div>
-      </div>
-    </div>
-  </a>
 </div>
 
+<script>
+  var KEYWORDS = ["Accenture", "Capgemini", "Cognizant", "Infosys", "TCS", "Deloitte", "HCL", "IBM", "Wipro"];
+
+  var CATEGORY_DOMAINS = {
+    "ELITE": ["latribune.fr", "lesechos.fr", "afp.com", "reuters.com", "francetvinfo.fr", "bfmtv.com", "forbes.fr", "lemonde.fr", "leparisien.fr", "lefigaro.fr"],
+    "Tier 1": ["lemondeinformatique.fr", "lesnumeriques.com", "frandroid.com", "hbrfrance.fr", "clubic.com", "zdnet.fr", "lemagit.fr", "usine-digitale.fr", "usinenouvelle.com", "silicon.fr", "digital-mag.fr", "linformaticien.com", "alliancy.fr", "itpro.fr", "lopinion.fr", "siecledigital.fr", "journaldunet.com", "itforbusiness.fr", "programmez.com", "actuia.com", "archimag.com", "solutions-numeriques.com", "cio-online.com"],
+    "Trade": ["actutem.com", "itrmanager.com", "solutions-numeriques.com", "decideo.fr", "auto.zepros.fr", "edi-mag.fr", "auto-infos.fr", "am-today.com", "itchannel.info", "itrnews.com", "itsocial.fr", "comarketing-news.fr", "animasoft.com", "cloud-newsmag.com", "itrmobiles.com", "ia-newsmag.com", "lavienumerique.com", "itrsoftware.com", "tendancesit.com", "sportbuzzbusiness.fr", "tennismag.com", "itrinnovation.com", "infodsi.com", "mtom-mag.com", "pa-sport.fr"]
+  };
+
+  function formatForGoogle(isoDate) {
+    var parts = isoDate.split("-");
+    return parts[1] + "/" + parts[2] + "/" + parts[0];
+  }
+
+  function search(query) {
+    var category = document.getElementById("categorySelect").value;
+    var recency = document.getElementById("dateRange").value;
+    var dateFrom = document.getElementById("dateFrom").value;
+    var dateTo = document.getElementById("dateTo").value;
+    var domains = CATEGORY_DOMAINS[category] || [];
+
+    var siteFilter = domains.map(function(d) { return "site:" + d; }).join(" OR ");
+    var fullQuery = "(" + siteFilter + ") " + query;
+
+    var params = new URLSearchParams({ q: fullQuery });
+
+    if (dateFrom && dateTo) {
+      var tbsValue = "cdr:1,cd_min:" + formatForGoogle(dateFrom) + ",cd_max:" + formatForGoogle(dateTo);
+      params.set("tbs", tbsValue);
+    } else if (recency) {
+      params.set("tbs", recency);
+    }
+
+    var url = "https://www.google.com/search?" + params.toString();
+    window.open(url, "_blank");
+  }
+
+  function goSearch(e) {
+    e.preventDefault();
+    var q = document.getElementById("wireQuery").value.trim();
+    if (!q) return false;
+    search(q);
+    return false;
+  }
+
+  var grid = document.getElementById("keywordGrid");
+  KEYWORDS.forEach(function(kw) {
+    var btn = document.createElement("button");
+    btn.className = "kw-btn";
+    btn.textContent = kw;
+    btn.addEventListener("click", function() { search(kw); });
+    grid.appendChild(btn);
+  });
+</script>
 </body>
 </html>
